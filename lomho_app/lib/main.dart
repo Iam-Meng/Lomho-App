@@ -1,5 +1,12 @@
 import 'package:flutter/material.dart';
 
+import 'model/welcome_screen.dart';
+
 void main() {
-  runApp(MaterialApp());
+  runApp(
+    const MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: WelcomeScreen(),
+    ),
+  );
 }

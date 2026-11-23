@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(
-    const MaterialApp(debugShowCheckedModeBanner: false, home: WelcomeScreen()),
-  );
-}
+import '../theme/app_colors.dart';
+import '../widgets/primary_button.dart';
+import '../widgets/step_indicator.dart';
+import 'login_screen.dart';
 
+/// Step 1 of onboarding: the first screen the app opens on.
+/// Shows the logo, the Riel/USD picture, and a Next button that opens Login.
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
 
@@ -14,10 +15,15 @@ class WelcomeScreen extends StatefulWidget {
 }
 
 class _WelcomeState extends State<WelcomeScreen> {
+  // Page layout: app bar with logo, big picture in the middle, NavPanel at the
+  // bottom. Next pushes LoginScreen as a new page (back arrow returns here).
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(
+        backgroundColor: AppColors.background,
+        foregroundColor: AppColors.text,
         title: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -31,19 +37,12 @@ class _WelcomeState extends State<WelcomeScreen> {
               ),
             ),
             const SizedBox(width: 8),
-            const Text("LOMHO", style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),),
+            const Text(
+              "LOMHO",
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
           ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () {}, // To Do
-            child: const Text("Skip"),
-          ),
-          const SizedBox(width: 8),
-        ],
       ),
       body: SafeArea(
         child: Padding(
@@ -52,7 +51,7 @@ class _WelcomeState extends State<WelcomeScreen> {
             children: [
               Expanded(
                 child: Center(
-                  child: Image.asset('assets/welcome-screen-riel-usd.webp',),
+                  child: Image.asset('assets/welcome-screen-riel-usd.webp'),
                 ),
               ),
               NavPanel(
@@ -61,9 +60,14 @@ class _WelcomeState extends State<WelcomeScreen> {
                 currentStep: 1,
                 totalSteps: 2,
                 stepLabel: 'Meet Lomho',
-                onNext: () {},
+                onNext: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (context) => const LoginScreen(),
+                    ),
+                  );
+                },
               ),
-              // To Do Step 2: Maybe using navigator push
             ],
           ),
         ),
@@ -72,6 +76,8 @@ class _WelcomeState extends State<WelcomeScreen> {
   }
 }
 
+/// Bottom part of Welcome: title, description, step dashes with a
+/// "Step X of Y" label, and the Next button. [onNext] runs when it's tapped.
 class NavPanel extends StatelessWidget {
   final String title;
   final String description;
@@ -100,57 +106,38 @@ class NavPanel extends StatelessWidget {
       children: [
         Text(
           title,
-          style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+          style: const TextStyle(
+            fontSize: 28,
+            fontWeight: FontWeight.bold,
+            color: AppColors.text,
+          ),
         ),
         const SizedBox(height: 12),
         Text(
           description,
-          style: const TextStyle(fontSize: 15, color: Colors.grey, height: 1.4),
+          style: const TextStyle(
+            fontSize: 15,
+            color: AppColors.subText,
+            height: 1.4,
+          ),
         ),
         const SizedBox(height: 24),
         Row(
           children: [
-            ...List.generate(totalSteps, (index) {
-              final isActive = index == currentStep - 1;
-              return Container(
-                margin: const EdgeInsets.only(right: 6),
-                width: isActive ? 22 : 18,
-                height: 6,
-                decoration: BoxDecoration(
-                  color: isActive
-                      ? const Color(0xFF4C5FD5)
-                      : const Color(0xFFE4E6EE),
-                  borderRadius: BorderRadius.circular(999),
-                ),
-              );
-            }),
+            StepIndicator(currentStep: currentStep, totalSteps: totalSteps),
             const SizedBox(width: 8),
             Text(
               'Step $currentStep of $totalSteps · $stepLabel',
-              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: AppColors.subText,
+              ),
             ),
           ],
         ),
         const SizedBox(height: 24),
-        SizedBox(
-          width: double.infinity,
-          height: 52,
-          child: FilledButton(
-            onPressed: onNext,
-            style: FilledButton.styleFrom(
-              backgroundColor: const Color(0xFF14181F),
-              shape: const StadiumBorder(),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(buttonText),
-                const SizedBox(width: 8),
-                const Icon(Icons.arrow_forward, size: 18),
-              ],
-            ),
-          ),
-        ),
+        PrimaryButton(label: buttonText, onPressed: onNext),
       ],
     );
   }
